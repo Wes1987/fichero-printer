@@ -13,6 +13,22 @@ from contextlib import asynccontextmanager
 
 from bleak import BleakClient, BleakGATTCharacteristic, BleakScanner
 
+# fichero/printer.py  — add near the top
+import os
+from fichero.transport_proxy import ProxyClient, WRITE_UUID, NOTIFY_UUID
+
+PROXY_HOST = os.environ.get("FICHERO_PROXY_HOST")   # e.g. "192.168.1.50"
+PROXY_KEY  = os.environ.get("FICHERO_PROXY_KEY")    # base64 noise PSK
+
+
+def _make_client(address: str):
+    """Return a bleak-compatible client, either local or via ESPHome proxy."""
+    if PROXY_HOST:
+        return ProxyClient(PROXY_HOST, address, noise_psk=PROXY_KEY)
+    else:
+        from bleak import BleakClient
+        return BleakClient(address)
+        
 # --- RFCOMM (Classic Bluetooth) support - Linux + Windows (Python 3.9+) ---
 
 _RFCOMM_AVAILABLE = False
