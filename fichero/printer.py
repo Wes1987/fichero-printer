@@ -390,7 +390,7 @@ async def connect(
             yield pc
     else:
         addr = address or await find_printer()
-        async with BleakClient(addr) as client:
+        async with _make_client(address) as client:
             pc = PrinterClient(client)
             await pc.start()
             yield pc
